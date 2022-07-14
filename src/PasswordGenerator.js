@@ -48,8 +48,8 @@ const PasswordGenerator = () => {
 
         if (lowercase === false && uppercase === false){
             result = 'You must select at least one character set!'
-            console.log(result);
-            return result;
+            setResults(result);
+            return;
         }
 
         for(let i = 0; i < quantity; i++){
@@ -142,7 +142,7 @@ const PasswordGenerator = () => {
             <form action="" className='form'>
                 <div>
                     <label htmlFor="length">Password Length:</label>
-                    <input id="length" type="number" value={length} onChange={handleLengthChange}/>
+                    <input id="length" type="number" min={4} max={30} value={length} onChange={handleLengthChange}/>
                 </div>
                 <div>
                     <label htmlFor="numbers">Numbers:</label>
@@ -166,7 +166,7 @@ const PasswordGenerator = () => {
                 </div>
                 <div>
                     <label htmlFor="quantity">Quantity:</label>
-                    <input id="quantity" type="number" value={quantity} onChange={handleQuantityChange}/>
+                    <input id="quantity" min={1} max={200} type="number" value={quantity} onChange={handleQuantityChange}/>
                 </div>
                 <span id='buttons'>
                     <button type="button" className={ copied ? 'clicked' : ''} onClick={copyPassword}> Copy </button>
