@@ -126,8 +126,11 @@ const PasswordGenerator = () => {
     }
 
     function copyPassword(){
-        navigator.clipboard.writeText(results)
-        setCopied(true)
+        navigator.clipboard.writeText(results).then(() => {
+            setCopied(true)
+        }).catch(() => {
+            alert('Oops! Something went wrong.')
+        })
         setTimeout(() => {
             setCopied(false);
         }, 150)
