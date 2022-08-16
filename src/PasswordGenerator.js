@@ -126,11 +126,21 @@ const PasswordGenerator = () => {
     }
 
     function copyPassword(){
-        navigator.clipboard.writeText(results).then(() => {
-            setCopied(true)
-        }).catch(() => {
-            alert('Oops! Something went wrong.')
-        })
+        if(navigator.clipboard){
+            navigator.clipboard.writeText(results).then(() => {
+                setCopied(true)
+            }).catch(() => {
+                alert('Oops! Something went wrong.')
+            })
+        } else {
+            let textArea = document.getElementById('textArea');
+            textArea.focus()
+            textArea.select()
+                new Promise((res, rej) => {
+                    document.execCommand('copy') ? res() : rej();
+                });
+        }
+
         setTimeout(() => {
             setCopied(false);
         }, 150)
@@ -177,7 +187,7 @@ const PasswordGenerator = () => {
                 </span>
             </form>
 
-            <textarea className='results' value={results} onChange={handleResultsChange}></textarea>
+            <textarea id="textArea" className='results' value={results} onChange={handleResultsChange}></textarea>
         </div>
     );
 };
