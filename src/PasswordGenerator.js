@@ -54,8 +54,7 @@ const PasswordGenerator = () => {
 
         for(let i = 0; i < quantity; i++){
             let possibleChars = [];
-            let numbersChars = '1234567890'
-            numbersChars = numbersChars.split('');
+            let numbersChars = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 ]
             let lowercaseChars = 'abcdefghijklmnopqrstuvwxyz'
             let uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -81,12 +80,11 @@ const PasswordGenerator = () => {
                 }
             }
 
+
             if(numbers === true){
-                for(let i = 0; i < Math.floor(Math.random() * pass.length); i++){
+                for(let i = 0; i < Math.ceil(Math.random() * pass.length); i++){
                     let randIdx = Math.floor(Math.random() * numbersChars.length)
                     pass[Math.floor(Math.random() * pass.length)] = numbersChars[randIdx];
-
-                    console.log(numbersChars)
 
                     if(!duplicates){
                         numbersChars.splice(randIdx, 1)
@@ -103,17 +101,23 @@ const PasswordGenerator = () => {
                 }
 
                 for(let i = 0; i < limit; i++){
-                    let randIdx = Math.floor(Math.random() * symbols.length)
+                    let symbol = symbols[Math.floor(Math.random() * symbols.length)]
+                    let randIdx = Math.floor(Math.random() * pass.length)
+
+                    if(typeof pass[randIdx] == 'number'){
+                        randIdx++
+                    }
+
                     if(!duplicates){
-                        if(!pass.includes(symbols[randIdx])){
-                            pass[Math.floor(Math.random() * pass.length)] = symbols[randIdx];
+                        if(!pass.includes(symbol)){
+                            pass[randIdx] = symbol;
                         }
                     } else {
-                        pass[Math.floor(Math.random() * pass.length)] = symbols[randIdx];
+                        pass[randIdx] = symbol;
                     }
                 }
             }
-
+            
             pass = pass.join('')
             result.push(pass);
         }
