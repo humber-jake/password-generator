@@ -59,14 +59,12 @@ const PasswordGenerator = () => {
             let uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
             if(lowercase === true){
-                possibleChars.push(lowercaseChars)
+                possibleChars.push(...lowercaseChars)
             }
 
             if(uppercase === true){
-                possibleChars.push(uppercaseChars)
+                possibleChars.push(...uppercaseChars)
             }
-
-            possibleChars = possibleChars.join('').split('')
             
             let pass = [];
 
@@ -80,14 +78,15 @@ const PasswordGenerator = () => {
                 }
             }
 
-
+            // Add numbers if selected
             if(numbers === true){
-                for(let i = 0; i < Math.ceil(Math.random() * pass.length); i++){
-                    let randIdx = Math.floor(Math.random() * numbersChars.length)
-                    pass[Math.floor(Math.random() * pass.length)] = numbersChars[randIdx];
+                let randLength = Math.floor(Math.random() * length + 1)
+                for(let i = 0; i < randLength; i++){
+                    let randNumber = numbersChars[Math.floor(Math.random() * numbersChars.length)]
+                    pass[Math.floor(Math.random() * pass.length)] = randNumber;
 
                     if(!duplicates){
-                        numbersChars.splice(randIdx, 1)
+                        numbersChars.splice(numbersChars.find(() => randNumber), 1)
                     }
                 }
             }
@@ -149,7 +148,6 @@ const PasswordGenerator = () => {
             setCopied(false);
         }, 150)
     }
-
 
     return (
         <div className='container'>
