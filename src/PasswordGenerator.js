@@ -15,12 +15,20 @@ const PasswordGenerator = () => {
     const [copied, setCopied] = useState(false)
     const [generated, setGenerated] = useState(false)
 
+
+    let numbersChars = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 ]
+    let lowercaseChars = 'abcdefghijklmnopqrstuvwxyz'
+    let uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    let possibleChars = [];
+
     function handleLengthChange(e){
         setLength(e.target.value)
     }
 
     function handleSymbolChange(e){
-        setSymbols(e.target.value)
+        let input = e.target.value.replace(/\w/gi, '');
+        let s = new Set(input)
+        setSymbols([...s].join(''));
     }
 
     function handleNumbersChange(e){
@@ -42,7 +50,31 @@ const PasswordGenerator = () => {
         setQuantity(e.target.value)
     }
 
-    function generatePassword(e){
+    function shuffle(a){
+        let array = a;
+        for (var i = array.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+        return array;
+    }
+
+    function validatePassword(password){
+        if(uppercase && /[A-Z]/.test(password) === false) return false;
+        if(lowercase && /[a-z]/.test(password) === false) return false;
+        if(numbers && [...password].every(i => (i.charCodeAt(0) < 48 || i.charCodeAt(0) > 57))) return false;
+        if(symbols && [...password].every(i => [...symbols].includes(i))) return false;
+        if(!duplicates){
+            [...password].forEach(i => {
+                if(password[i+1] && password[i+1] === password[i]) return false;
+            })
+        }
+        return true;
+    }
+
+    function getOutput(e){
         e.preventDefault();
         let result = [];
 
@@ -52,80 +84,51 @@ const PasswordGenerator = () => {
             return;
         }
 
+        if(lowercase === true){
+            possibleChars.push(...lowercaseChars)
+        }
+
+        if(uppercase === true){
+            possibleChars.push(...uppercaseChars)
+        }
+
+        if(numbers === true){
+            possibleChars.push(...numbersChars)
+        }
+
         for(let i = 0; i < quantity; i++){
-            let possibleChars = [];
-            let numbersChars = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 ]
-            let lowercaseChars = 'abcdefghijklmnopqrstuvwxyz'
-            let uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-
-            if(lowercase === true){
-                possibleChars.push(...lowercaseChars)
-            }
-
-            if(uppercase === true){
-                possibleChars.push(...uppercaseChars)
-            }
-            
-            let pass = [];
-
-            // make intitial password out of letters
-            for (let i = 0; i < length; i++) {
-                let randIdx = Math.floor(Math.random() * possibleChars.length)
-                pass.push(possibleChars[randIdx])
-                
-                if(!duplicates){
-                    possibleChars.splice(randIdx, 1)
-                }
-            }
-
-            // Add numbers if selected
-            if(numbers === true){
-                let randLength = Math.floor(Math.random() * length + 1)
-                for(let i = 0; i < randLength; i++){
-                    let randNumber = numbersChars[Math.floor(Math.random() * numbersChars.length)]
-                    pass[Math.floor(Math.random() * pass.length)] = randNumber;
-
-                    if(!duplicates){
-                        numbersChars.splice(numbersChars.find(() => randNumber), 1)
-                    }
-                }
-            }
-
-            if(symbols.length > 0){
-
-                // limit symbols to half the password's characters at max
-                let limit = symbols.length;
-                if(Math.floor(pass.length / 2) < symbols.length){
-                    limit = Math.floor(pass.length / 2)
-                }
-
-                for(let i = 0; i < limit; i++){
-                    let symbol = symbols[Math.floor(Math.random() * symbols.length)]
-                    let randIdx = Math.floor(Math.random() * pass.length)
-
-                    if(typeof pass[randIdx] == 'number'){
-                        randIdx++
-                    }
-
-                    if(!duplicates){
-                        if(!pass.includes(symbol)){
-                            pass[randIdx] = symbol;
-                        }
-                    } else {
-                        pass[randIdx] = symbol;
-                    }
-                }
-            }
-            
-            pass = pass.join('')
-            result.push(pass);
+            let p = generatePassword();
+            while (!validatePassword(p)){
+                p = generatePassword();
+            };
+            result.push(p);
         }
         result = result.join("\r\n")
         setResults(result);
+
+        // for animation
         setGenerated(true)
         setTimeout(() => {
             setGenerated(false);
         }, 150)
+    }
+
+    function generatePassword(){
+        let pass = shuffle(possibleChars).slice(0, length);
+
+            if(symbols.length > 0){
+
+                // limit symbols to half the password's characters at max
+                let numOfSymbols = Math.min(symbols.length, Math.floor(pass.length / 2))
+
+                for(let i = 0; i < numOfSymbols; i++){
+                    let symbol = symbols[Math.floor(Math.random() * symbols.length)]
+                    let randIdx = Math.floor(Math.random() * pass.length)
+                        pass[randIdx] = symbol;
+                    }
+                }
+            pass = pass.join('')
+            return pass;
     }
 
     function copyPassword(){
@@ -185,7 +188,7 @@ const PasswordGenerator = () => {
                 </div>
                 <span id='buttons'>
                     <button type="button" className={ copied ? 'clicked' : ''} onClick={copyPassword}> Copy </button>
-                    <button type="button" className={ generated ? 'clicked' : ''} onClick={generatePassword}> Generate </button>
+                    <button type="button" className={ generated ? 'clicked' : ''} onClick={getOutput}> Generate </button>
                 </span>
             </form>
 
